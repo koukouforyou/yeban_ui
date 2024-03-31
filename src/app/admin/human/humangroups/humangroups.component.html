@@ -1,0 +1,27 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    <span>{{"HumanGroups" | localize}}</span>
+                </h3>
+                <span class="m-section__sub">
+                    {{"HumanGroups" | localize}}
+                </span>
+            </div>
+
+        </div>
+    </div>
+    <div class="m-content">
+        <div class="row">
+            <div class="col-lg-6">
+                <!-- <organization-tree #ouTree (ouSelected)="ouMembers.organizationUnit = $event"></organization-tree> -->
+                <app-humangroupstree #groupTree (ouSelected)="humangroupsdetail.HumanGroup=$event"></app-humangroupstree>
+            </div>
+            <div class="col-lg-6">
+                <!-- <organization-unit-members #ouMembers (membersAdded)="ouTree.membersAdded($event)" (memberRemoved)="ouTree.memberRemoved($event)"></organization-unit-members> -->
+                <app-humangroupdetail #humangroupsdetail></app-humangroupdetail>
+            </div>
+        </div>
+    </div>
+</div>

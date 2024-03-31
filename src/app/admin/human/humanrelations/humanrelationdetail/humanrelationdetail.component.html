@@ -1,0 +1,81 @@
+<div bsModal #editModal="bs-modal" (onShow)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <span>{{"CreateHuman" | localize}}</span>
+                </h4>
+                <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="horizontal-form" autocomplete="off">
+                    <div class="row align-items-center m--margin-bottom-10">
+                        <div class="col text-right mt-3 mt-md-0">
+                            <button (click)="createHumanRelation(this.humanId)" *ngIf="isGranted('Human.Relation.Create')" class="btn btn-primary">
+                            <i class="fa fa-plus"></i> {{"CreateHuman" | localize}}
+                        </button>
+                        </div>
+                    </div>
+                    <div class="primeng-datatable-container" [busyIf]="primengTableHelper.isLoading">
+                        <p-table #dataTable (onLazyLoad)="getLists($event)" [value]="primengTableHelper.records" rows="{{primengTableHelper.defaultRecordsCountPerPage}}" [paginator]="false" [lazy]="true" [responsive]="primengTableHelper.isResponsive" [scrollable]="true" ScrollWidth="100%">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th style="width: 100px;text-align: center;">{{'Actions' | localize}}</th>
+                                    <th style="width: 50px;text-align: center;">{{'编号'|localize}}</th>
+                                    <th style="width: 100px;text-align: center;">{{'源人物' | localize}}</th>
+                                    <th style="width: 100px;text-align: center;">{{'关系' | localize}}</th>
+                                    <th style="width: 100px;text-align: center;">{{'目标人物' | localize}}</th>
+                                    <th style="width: 50px;text-align: center;">{{'描述'| localize}}</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-record="$implicit">
+                                <tr>
+                                    <td style="width: 100px;text-align: center;">
+                                        <div class="btn-group dropdown" dropdown container="body">
+                                            <button dropdownToggle class="btn btn-sm btn-primary" (click)='deleteHumanRelation(record.id)'>
+                                            <i class="fa fa-cog"></i><span class="delete"></span>
+                                            {{"Delete" | localize}}
+                                        </button>
+                                        </div>
+                                    </td>
+                                    <td style="width: 50px;text-align: center;">
+                                        <span class="ui-column-title">{{'index' | localize}}</span>
+                                    </td>
+                                    <td style="width: 100px;text-align: center;">
+                                        <span class="ui-column-title">{{'sourcename' | localize}}</span>{{record.souceHuman.name}}
+                                    </td>
+                                    <td style="width: 100px;text-align: center;">
+                                        <span class="ui-column-title">{{'isTwoWay' | localize}}</span>{{record.isTwoWay?"←→":"→"}}
+                                    </td>
+                                    <td style="width: 100px;text-align: center;">
+                                        <span class="ui-column-title">{{'destName' | localize}}</span>{{record.destHuman.name}}
+                                    </td>
+                                    <td style="width: 50px;text-align: center;">
+                                        <span class="ui-column-title">{{'description' | localize}}</span>{{record.description}}
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        <div class="primeng-no-data" *ngIf="primengTableHelper.totalRecordsCount == 0">
+                            {{'NoData' | localize}}
+                        </div>
+                        <div class="primeng-paging-container">
+                            <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator (onPageChange)="getLists($event)" [totalRecords]="primengTableHelper.totalRecordsCount" [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage">
+                            </p-paginator>
+                            <span class="total-records-count">
+                            {{'TotalRecordsCount' | localize:primengTableHelper.totalRecordsCount}}
+                        </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button [disabled]="saving" type="button" class="btn btn-default" (click)="close()">{{l("cancel")}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-create-humanrelation-modal #createHumanrelationModalComponent (modalSave)="getLists($event)"></app-create-humanrelation-modal>

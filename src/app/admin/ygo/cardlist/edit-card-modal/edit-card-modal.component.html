@@ -1,0 +1,487 @@
+<div bsModal #editModal="bs-modal" (onShow)="onShown()" class="modal fade" tabindex="-1" role="dialog"
+    aria-labelledby="editModal" aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form *ngIf="active" #editForm="ngForm" novalidate (ngSubmit)="save()">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        <input class="form-control" *ngIf="card_img_dto.yGO_Card.ygO_CardNo" type="text"
+                            name="ygO_CardNo" [(ngModel)]="card_img_dto.yGO_Card.ygO_CardNo" maxlength="128">
+                    </h4>
+                    <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" *ngIf="card_img_dto">
+                    <tabset class="tab-container tabbable-line">
+                        <tab heading="中文" customClass="m-tabs__item">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <img *ngIf="this.ygocard_ch.length>0"
+                                        [src]="'http://res.bamanna.com/'+this.ygocard_ch[0].ygO_CardPictureUrl"
+                                        width="250" height="375" class="img-thumbnail img-rounded" />
+                                    <input type="file" *ngIf="this.ygocard_ch.length>0" (change)="changePic($event,2)">
+                                    <input type="file" *ngIf="this.ygocard_ch.length==0"
+                                        (change)="createPic($event,this.card_img_dto.yGO_Card.ygO_CardNo,2)">
+                                    <input name='createurl_zh' class="form-control" type="text"
+                                        *ngIf="this.ygocard_ch.length==0" [(ngModel)]="CreateImgDto.fileUrl">
+                                    <button *ngIf="this.ygocard_ch.length==0" class="btn btn-primary"
+                                        (click)="createPicByUrl(2)">提交图片</button>
+                                    <input name='updateurl_zh' class="form-control" type="text"
+                                        *ngIf="this.ygocard_ch.length!=0" [(ngModel)]="UpdateImgDto.fileUrl">
+                                    <button *ngIf="this.ygocard_ch.length!=0" class="btn btn-primary"
+                                        (click)="updatePicByUrl(2)">提交图片</button>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                        <label>中文名称</label>
+                                        <input class="form-control" *ngIf="card_img_dto.yGO_Card.ygO_CardName_Chs"
+                                            type="text" name="ygO_CardName_Chs"
+                                            [(ngModel)]="card_img_dto.yGO_Card.ygO_CardName_Chs" maxlength="128">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>卡牌类型</label>
+                                                <select name="ygo_CardProperties" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_CardProperties">
+                                                    <option *ngFor="let item of app.enums.ygo_CardProperties | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>怪兽卡类型</label>
+                                                <select name="ygO_MonsterCardType" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardType">
+                                                    <option
+                                                        *ngFor="let item of app.enums.ygo_MonsterCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardRace">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>怪兽卡种族</label>
+                                                <select name="ygo_MonsterCardRace" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardRace">
+                                                    <option
+                                                        *ngFor="let item of app.enums.ygo_MonsterCardRace | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_TrapCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>陷阱卡种类</label>
+                                                <select name="ygO_TrapCardType" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_TrapCardType">
+                                                    <option *ngFor="let item of app.enums.ygo_TrapCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_SpellCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>魔法卡种类</label>
+                                                <select id="ygO_SpellCardType" name="ygO_SpellCardType"
+                                                    class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_SpellCardType">
+                                                    <option *ngFor="let item of app.enums.ygo_SpellCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLevel">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType!=15&&card_img_dto.yGO_Card.ygO_MonsterCardType!=16">等级</label>
+                                                <label *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType==15">阶级</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLevel" type="text"
+                                                    name="ygO_MonsterCardLevel"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLevel"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLink">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>Link</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLink" type="text"
+                                                    name="ygO_MonsterCardLink"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLink"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLinkType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>Link值</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLinkType" type="text"
+                                                    name="ygO_MonsterCardLinkType"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLinkType"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4"
+                                            *ngIf="!card_img_dto.yGO_Card.ygO_SpellCardType&&!card_img_dto.yGO_Card.ygO_TrapCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>攻击力</label>
+                                                <input class="form-control"
+                                                    *ngIf="!card_img_dto.yGO_Card.ygO_SpellCardType&&!card_img_dto.yGO_Card.ygO_TrapCardType"
+                                                    type="text" name="ygO_MonsterCardAttack"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardAttack"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4"
+                                            *ngIf="!card_img_dto.yGO_Card.ygO_SpellCardType&&!card_img_dto.yGO_Card.ygO_TrapCardType&&!card_img_dto.yGO_Card.ygO_MonsterCardLinkType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>防御力</label>
+                                                <input class="form-control"
+                                                    *ngIf="!card_img_dto.yGO_Card.ygO_SpellCardType&&!card_img_dto.yGO_Card.ygO_TrapCardType&&!card_img_dto.yGO_Card.ygO_MonsterCardLinkType"
+                                                    type="text" name="ygO_MonsterCardDefense"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardDefense"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                        <label>描述</label>
+                                        <textarea class="form-control" type="text" style="height: 230px;"
+                                            name="ygO_CardEffect_Chs"
+                                            [(ngModel)]="card_img_dto.yGO_Card.ygO_CardEffect_Chs"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </tab>
+                        <tab heading="日文" customClass="m-tabs__item">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <img *ngIf="this.ygocard_jp.length>0"
+                                        [src]="'http://res.bamanna.com/'+this.ygocard_jp[0].ygO_CardPictureUrl"
+                                        width="250" height="375" class="img-thumbnail img-rounded" />
+                                    <input type="file" *ngIf="this.ygocard_jp.length>0" (change)="changePic($event,4)">
+                                    <input type="file" *ngIf="this.ygocard_jp.length==0"
+                                        (change)="createPic($event,this.card_img_dto.yGO_Card.ygO_CardNo,4)">
+                                    <input name='createurl_jp' class="form-control" type="text"
+                                        *ngIf="this.ygocard_jp.length==0" [(ngModel)]="CreateImgDto.fileUrl">
+                                    <button *ngIf="this.ygocard_jp.length==0" class="btn btn-primary"
+                                        (click)="createPicByUrl(4)">提交图片</button>
+                                    <input name='updateurl_jp' class="form-control" type="text"
+                                        *ngIf="this.ygocard_jp.length!=0" [(ngModel)]="UpdateImgDto.fileUrl">
+                                    <button *ngIf="this.ygocard_jp.length!=0" class="btn btn-primary"
+                                        (click)="updatePicByUrl(4)">提交图片</button>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                        <label>日文名称</label>
+                                        <input class="form-control" type="text" name="ygO_CardName_Jan"
+                                            [(ngModel)]="card_img_dto.yGO_Card.ygO_CardName_Jan" maxlength="128">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>卡牌类型</label>
+                                                <select name="ygo_CardProperties" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_CardProperties">
+                                                    <option *ngFor="let item of app.enums.ygo_CardProperties | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>怪兽卡类型</label>
+                                                <select name="ygO_MonsterCardType" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardType">
+                                                    <option
+                                                        *ngFor="let item of app.enums.ygo_MonsterCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardRace">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>怪兽卡种族</label>
+                                                <select name="ygo_MonsterCardRace" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardRace">
+                                                    <option
+                                                        *ngFor="let item of app.enums.ygo_MonsterCardRace | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_TrapCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>陷阱卡种类</label>
+                                                <select id="ygO_TrapCardType" name="ygO_TrapCardType"
+                                                    class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_TrapCardType">
+                                                    <option *ngFor="let item of app.enums.ygo_TrapCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_SpellCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>魔法卡种类</label>
+                                                <select id="ygO_SpellCardType" name="ygO_SpellCardType"
+                                                    class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_SpellCardType">
+                                                    <option *ngFor="let item of app.enums.ygo_SpellCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLevel">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType!=15&&card_img_dto.yGO_Card.ygO_MonsterCardType!=16">等级</label>
+                                                <label *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType==15">阶级</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLevel" type="text"
+                                                    name="ygO_MonsterCardLevel"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLevel"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLink">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>Link</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLink" type="text"
+                                                    name="ygO_MonsterCardLink"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLink"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLinkType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>Link值</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLinkType" type="text"
+                                                    name="ygO_MonsterCardLinkType"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLinkType"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardAttack">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>攻击力</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardAttack" type="text"
+                                                    name="ygO_MonsterCardAttack"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardAttack"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardDefense">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>防御力</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardDefense" type="text"
+                                                    name="ygO_MonsterCardDefense"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardDefense"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                        <label>描述</label>
+                                        <textarea class="form-control" type="text" style="height: 230px;"
+                                            name="ygO_CardEffect_Jan"
+                                            [(ngModel)]="card_img_dto.yGO_Card.ygO_CardEffect_Jan"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </tab>
+                        <tab heading="英文" customClass="m-tabs__item">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <img *ngIf="this.ygocard_en.length>0"
+                                        [src]="'http://res.bamanna.com/'+this.ygocard_en[0].ygO_CardPictureUrl"
+                                        width="250" height="375" class="img-thumbnail img-rounded" />
+                                    <input type="file" *ngIf="this.ygocard_en.length>0" (change)="changePic($event,1)">
+                                    <input type="file" *ngIf="this.ygocard_en.length==0"
+                                        (change)="createPic($event,this.card_img_dto.yGO_Card.ygO_CardNo,1)">
+                                    <input name='createurl_en' class="form-control" type="text"
+                                        *ngIf="this.ygocard_jp.length==0" [(ngModel)]="CreateImgDto.fileUrl">
+                                    <button *ngIf="this.ygocard_en.length==0" class="btn btn-primary"
+                                        (click)="createPicByUrl(1)">提交图片</button>
+                                    <input name='updateurl_en' class="form-control" type="text"
+                                        *ngIf="this.ygocard_jp.length!=0" [(ngModel)]="UpdateImgDto.fileUrl">
+                                    <button *ngIf="this.ygocard_en.length!=0" class="btn btn-primary"
+                                        (click)="updatePicByUrl(1)">提交图片</button>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                        <label>英文名称</label>
+                                        <input class="form-control" type="text" name="ygO_CardName_Eng"
+                                            [(ngModel)]="card_img_dto.yGO_Card.ygO_CardName_Eng" maxlength="128">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>卡牌类型</label>
+                                                <select name="ygo_CardProperties" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_CardProperties">
+                                                    <option *ngFor="let item of app.enums.ygo_CardProperties | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>怪兽卡类型</label>
+                                                <select name="ygO_MonsterCardType" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardType">
+                                                    <option
+                                                        *ngFor="let item of app.enums.ygo_MonsterCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardRace">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>怪兽卡种族</label>
+                                                <select name="ygo_MonsterCardRace" class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardRace">
+                                                    <option
+                                                        *ngFor="let item of app.enums.ygo_MonsterCardRace | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_TrapCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>陷阱卡种类</label>
+                                                <select id="ygO_TrapCardType" name="ygO_TrapCardType"
+                                                    class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_TrapCardType">
+                                                    <option *ngFor="let item of app.enums.ygo_TrapCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_SpellCardType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>魔法卡种类</label>
+                                                <select id="ygO_SpellCardType" name="ygO_SpellCardType"
+                                                    class="form-control"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_SpellCardType">
+                                                    <option *ngFor="let item of app.enums.ygo_SpellCardType | keyvalue"
+                                                        [value]="item.key">{{item.value}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLevel">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType!=15&&card_img_dto.yGO_Card.ygO_MonsterCardType!=16">等级</label>
+                                                <label *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardType==15">阶级</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLevel" type="text"
+                                                    name="ygO_MonsterCardLevel"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLevel"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLink">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>Link</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLink" type="text"
+                                                    name="ygO_MonsterCardLink"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLink"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLinkType">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>Link值</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardLinkType" type="text"
+                                                    name="ygO_MonsterCardLinkType"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardLinkType"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardAttack">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>攻击力</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardAttack" type="text"
+                                                    name="ygO_MonsterCardAttack"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardAttack"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardDefense">
+                                            <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                                <label>防御力</label>
+                                                <input class="form-control"
+                                                    *ngIf="card_img_dto.yGO_Card.ygO_MonsterCardDefense" type="text"
+                                                    name="ygO_MonsterCardDefense"
+                                                    [(ngModel)]="card_img_dto.yGO_Card.ygO_MonsterCardDefense"
+                                                    maxlength="128">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                        <label>描述</label>
+                                        <textarea class="form-control" type="text" style="height: 230px;"
+                                            name="ygO_CardEffect_Eng"
+                                            [(ngModel)]="card_img_dto.yGO_Card.ygO_CardEffect_Eng"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </tab>
+                    </tabset>
+                </div>
+                <div class="modal-footer">
+                    <button [disabled]="saving" type="button" class="btn btn-default"
+                        (click)="close()">{{l("cancel")}}</button>
+                    <button class="btn btn-primary" [disabled]="!editForm.form.valid" [buttonBusy]="saving"
+                        [busyText]="l('savingwiththreedot')"><i class="fa fa-save"></i>
+                        <span>{{l("save")}}</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

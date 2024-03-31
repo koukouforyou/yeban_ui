@@ -1,0 +1,90 @@
+<div bsModal #editModal="bs-modal" (onShow)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form *ngIf="active" #editForm="ngForm" novalidate (ngSubmit)="save()">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        <span>{{"CreateHuman" | localize}}</span>
+                    </h4>
+                    <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <tabset class="tab-container tabbable-line">
+                        <tab heading="{{'HumanInformations' | localize}}" customClass="m-tabs__item">
+                            <div class="row">
+                                <div class="col-sm-3 text-center margin-bottom-15 margin-top-15">
+                                    <img src="" width="128" height="128" class="img-thumbnail img-rounded" />
+                                </div>
+                                <div class="col-sm-9">
+                                    <div class="form-group">
+                                        <label for="Name">{{"Name" | localize}} *</label>
+                                        <input #nameInput="ngModel" class="form-control" id="HumanName" name="Name" type="text" [(ngModel)]="human.name" required maxlength="32">
+                                        <validation-messages [formCtrl]="nameInput"></validation-messages>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="NickName">{{"NickName" | localize}}</label>
+                                        <input id="NickName" #surnameInput="ngModel" type="text" name="NickName" class="form-control" [(ngModel)]="human.nickName" maxlength="32">
+                                        <validation-messages [formCtrl]="surnameInput"></validation-messages>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-1" style="text-align: right;">
+                                    <label>性别</label>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p-selectButton [(ngModel)]="human.male" [options]="stateOptions" id="Sex" name="Sex"></p-selectButton>
+                                    <validation-messages [formCtrl]="nameInput"></validation-messages>
+                                </div>
+
+                                <div class="col-sm-1" style="text-align: right;">
+                                    <label>IsMajor</label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <p-inputSwitch [(ngModel)]="human.isMajor" id="isMajor" name="isMajor"></p-inputSwitch>
+
+                                    <validation-messages [formCtrl]="nameInput"></validation-messages>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="Height">{{"Height" | localize}}</label>
+                                        <input id="Height" #nameInput="ngModel" class="form-control" type="text" name="Height" [(ngModel)]="human.height" />
+                                        <validation-messages [formCtrl]="nameInput"></validation-messages>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="Weight">{{"Weight" | localize}}</label>
+                                        <input id="Weight" #nameInput="ngModel" class="form-control" type="text" name="Weight" [(ngModel)]="human.weight" />
+                                        <validation-messages [formCtrl]="nameInput"></validation-messages>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                                            <label>{{"Memo" | localize}}</label>
+                                            <textarea class="form-control" type="text" style="height: 230px;" name="Memo" [(ngModel)]="human.memo"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </tab>
+                        <tab heading="{{'UserInformations' | localize}}" customClass="m-tabs__item"></tab>
+                    </tabset>
+                </div>
+                <div class="modal-footer">
+                    <button [disabled]="saving" type="button" class="btn btn-default" (click)="close()">{{l("cancel")}}</button>
+                    <button [disabled]="saving" type="button" class="btn btn-primary" [disabled]="!editForm.form.valid" [buttonBusy]="saving" [busyText]="l('savingwiththreedot')" (click)="continueSave()"><i class="fa fa-save"></i>{{l("continueSave")}}</button>
+                    <button class="btn btn-primary" [disabled]="!editForm.form.valid" [buttonBusy]="saving" [busyText]="l('savingwiththreedot')"><i class="fa fa-save"></i>
+                        <span>{{l("save")}}</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

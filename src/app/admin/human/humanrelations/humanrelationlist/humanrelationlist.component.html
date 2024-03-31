@@ -1,0 +1,81 @@
+<div [@routerTransition]>
+    <div id="HumanView">
+        <div class="m-subheader ">
+            <div class="d-flex align-items-center">
+                <div class="mr-auto col-xs-6 ">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <span>{{"HumanProjectMap" | localize}}</span>
+                    </h3>
+                    <span class="m-section__sub">
+                        {{"HumanProjectMapHeadInfo" | localize}}
+                    </span>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <button (click)="createHuman()" *ngIf="isGranted('Human.Create')" class="btn btn-primary">
+                        <i class="fa fa-plus"></i> {{"CreateHuman" | localize}}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="m-content">
+            <div class="m-portlet m-portlet--mobile" style="margin-bottom: 0;">
+                <div class="m-portlet__body" style="padding: 2.2rem 2.2rem 0 2.2rem">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-10">
+                            <div class="col-xl-6">
+                                <div class="form-group">
+                                    <label class="control-label">关键字搜索</label>
+                                    <div class="input-group">
+                                        <input [(ngModel)]="pageFilters.searchKey" name="searchKey" autoFocus class="form-control m-input" [placeholder]="l('SearchWithThreeDot')" type="text" (ngModelChange)="getLists($event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container" [busyIf]="primengTableHelper.isLoading">
+                            <p-table #dataTable (onLazyLoad)="getLists($event)" [value]="primengTableHelper.records" rows="{{primengTableHelper.defaultRecordsCountPerPage}}" [paginator]="false" [lazy]="true" [responsive]="primengTableHelper.isResponsive" [scrollable]="true" scrollHeight="600px">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th style="width: 100px;text-align: center;">名称</th>
+                                        <th style="width: 250px;text-align: center;">项目</th>
+                                        <th style="width: 100px;text-align: center;" *ngFor="let item of this.projectlist">{{item.projectName}}</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-record="$implicit">
+                                    <tr>
+                                        <td style="width: 100px;text-align: center;">
+                                            <span class="ui-column-title">{{'name' | localize}}</span>{{record.humanName}}
+                                        </td>
+                                        <td style="width: 250px;text-align: center;">
+                                            <select class="form-control" name="displayName" *ngIf="record.isCurrentTenant" [(ngModel)]="record.projectId" (ngModelChange)="changeProject(record.humanId,record.projectId)" required>
+                                                <option *ngFor="let item of this.currentprojectlist"
+                                                    [ngValue]="item.id">
+                                                    {{item.name}}</option>
+                                            </select>
+                                        </td>
+                                        <td style="width: 100px;text-align: center;" *ngFor="let item of record.bindProjectIds">
+                                            <p-inputSwitch [(ngModel)]="item.isBind" (ngModelChange)="bindProject(record.humanId,record.bindProjectIds)" [disabled]="record.projectId==item.projectId"></p-inputSwitch>
+                                            <!-- <input type="checkbox" [(ngModel)]="item.isBind" (ngModelChange)="bindProject(record.humanId,record.bindProjectIds)" [disabled]="record.projectId==item.projectId"> -->
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                            <div class="primeng-no-data" *ngIf="primengTableHelper.totalRecordsCount == 0">
+                                {{'NoData' | localize}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator (onPageChange)="getLists($event)" [totalRecords]="primengTableHelper.totalRecordsCount" [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage">
+                                </p-paginator>
+                                <span class="total-records-count">
+                                    {{'TotalRecordsCount' | localize:primengTableHelper.totalRecordsCount}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <app-create-human-modal #createHumanModalComponent (modalSave)="getLists($event)"></app-create-human-modal>
+</div>

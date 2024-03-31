@@ -1,0 +1,128 @@
+<div [@routerTransition]>
+    <div id="HumanList">
+        <div class="m-subheader ">
+            <div class="d-flex align-items-center">
+                <div class="mr-auto col-xs-6 ">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <span>{{"HumanList" | localize}}</span>
+                    </h3>
+                    <span class="m-section__sub">
+                        {{"HumanListHeaderInfo" | localize}}
+                    </span>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <button (click)="createHuman()" *ngIf="isGranted('Human.Create')" class="btn btn-primary">
+                        <i class="fa fa-plus"></i> {{"CreateHuman" | localize}}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="m-content">
+            <div class="m-portlet m-portlet--mobile" style="margin-bottom: 0;">
+                <div class="m-portlet__body" style="padding: 2.2rem 2.2rem 0 2.2rem">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-10">
+                            <div class="col-xl-6">
+                                <div class="form-group">
+                                    <label class="control-label">关键字搜索</label>
+                                    <div class="input-group">
+                                        <input [(ngModel)]="pageFilters.searchKey" name="searchKey" autoFocus class="form-control m-input" [placeholder]="l('SearchWithThreeDot')" type="text" (ngModelChange)="getList($event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container" [busyIf]="primengTableHelper.isLoading">
+                            <p-table #dataTable (onLazyLoad)="getList($event)" [value]="primengTableHelper.records" rows="{{primengTableHelper.defaultRecordsCountPerPage}}" [paginator]="false" [lazy]="true" [responsive]="primengTableHelper.isResponsive" [scrollable]="true" scrollHeight="500px"
+                                crollWidth="100%">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th style="width: 100px;text-align: center;">{{'Actions' | localize}}</th>
+                                        <th style="width: 50px;text-align: center;">{{'人物图片'|localize}}</th>
+                                        <th style="width: 100px;text-align: center;">{{'人物姓名' | localize}}</th>
+                                        <th style="width: 100px;text-align: center;">{{'人物别名' | localize}}</th>
+                                        <th style="width:100px;text-align:center;">{{'是否是主要角色'|localize}}</th>
+                                        <th style="width: 100px;text-align: center;">{{'人物性別' | localize}}</th>
+                                        <th style="width: 50px;text-align: center;">{{'身高'| localize}}</th>
+                                        <th style="width: 50px;text-align: center;">{{'体重'|localize}}</th>
+                                        <th style="width: 300px;text-align: center;">{{'描述' | localize}}</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-record="$implicit">
+                                    <tr>
+                                        <td style="width: 100px;text-align: center;">
+                                            <div class="btn-group dropdown" dropdown container="body">
+                                                <button dropdownToggle class="dropdown-toggle btn btn-sm btn-primary">
+                                                        <i class="fa fa-cog"></i><span class="caret"></span>
+                                                        {{"Actions" | localize}}
+                                                    </button>
+                                                <ul class="dropdown-menu" *dropdownMenu>
+                                                    <li>
+                                                        <a href="javascript:;" *ngIf="permission.isGranted('Human.Edit')" (click)='editHuman(record.id)'>{{'Edit' | localize}}</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="javascript:;" *ngIf="permission.isGranted('Human.Delete')" (click)='deleteHuman(record.id)'>{{'Delete' | localize}}</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="javascript:;" *ngIf="permission.isGranted('Human.Relation.Edit')" (click)='editHumanRelation(record.id)'>{{'HumanRelationEdit' | localize}}</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="javascript:;" (click)='editProjectBind(record.id)'>{{'HumanProjectRelationEdit' | localize}}</a>
+                                                    </li>
+                                                </ul>
+
+                                            </div>
+                                        </td>
+                                        <td style="width: 50px;text-align: center;">
+                                            <span class="ui-column-title">{{'picture_Head' | localize}}</span>
+                                            <img src="{{record.picUrl}}" width="50px" height="50px" (click)="editHumanHeadpicModalComponent.show(record.id)" />
+                                        </td>
+                                        <td style="width: 100px;text-align: center;">
+                                            <span class="ui-column-title">{{'name' | localize}}</span>{{record.name}}
+                                        </td>
+                                        <td style="width: 100px;text-align: center;">
+                                            <span class="ui-column-title">{{'nickName' | localize}}</span>{{record.nickName}}
+                                        </td>
+                                        <td style="width: 100px;text-align: center;">
+                                            <p-inputSwitch [(ngModel)]="record.isMajor" (ngModelChange)="changeMajor(record.id,record.isMajor)"></p-inputSwitch>
+                                        </td>
+                                        <td style="width: 100px;text-align: center;">
+                                            <p-selectButton [(ngModel)]="record.male" [options]="stateOptions" (ngModelChange)="changeSex(record.id,record.male)"></p-selectButton>
+                                            <!-- <span class="ui-column-title">{{'male' | localize}}</span>{{record.male==true?'男':'女'}} -->
+                                        </td>
+                                        <td style="width: 50px;text-align: center;">
+                                            <span class="ui-column-title">{{'height' | localize}}</span>{{record.height}}
+                                        </td>
+                                        <td style="width: 50px;text-align: center;">
+                                            <span class="ui-column-title">{{'weight' | localize}}</span>{{record.weight}}
+                                        </td>
+                                        <td style="width: 300px;text-align: center;">
+                                            <span class="ui-column-title">{{'memo' | localize}}</span>{{record.memo}}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                            <div class="primeng-no-data" *ngIf="primengTableHelper.totalRecordsCount == 0">
+                                {{'NoData' | localize}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator (onPageChange)="getList($event)" [totalRecords]="primengTableHelper.totalRecordsCount" [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage">
+                                </p-paginator>
+                                <span class="total-records-count">
+                                        {{'TotalRecordsCount' | localize:primengTableHelper.totalRecordsCount}}
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <app-create-card-modal #createCardModal (modelSave)="getCards()"></app-create-card-modal> -->
+    <app-create-human-modal #createHumanModalComponent (modalSave)="getList($event)"></app-create-human-modal>
+    <app-edit-human-modal #editHumanModalComponent (modalSave)="getList($event)"></app-edit-human-modal>
+    <app-humanrelationdetail #humanrelationdetailComponent></app-humanrelationdetail>
+    <app-update-project-bind-modal #updateProjectBindModalComponent></app-update-project-bind-modal>
+</div>
+<app-edit-human-headpic-modal #editHumanHeadpicModalComponent (modalSave)="getList($event)"></app-edit-human-headpic-modal>

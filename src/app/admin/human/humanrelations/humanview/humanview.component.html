@@ -1,0 +1,95 @@
+<div [@routerTransition]>
+    <div id="HumanView">
+        <div class="m-subheader ">
+            <div class="d-flex align-items-center">
+                <div class="mr-auto col-xs-6 ">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <span>{{"HumanView" | localize}}</span>
+                    </h3>
+                    <span class="m-section__sub">
+                        {{"HumanViewHeadInfo" | localize}}
+                    </span>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <p-inputSwitch [(ngModel)]="IsMajor" (ngModelChange)="show()" title="是否是主要角色" class="btn">
+                    </p-inputSwitch>
+                    <button (click)="projectMap()" class="btn btn-primary">
+                        <i class=" fa-address-card"></i> {{"ProjectMap" | localize}}
+                    </button>
+                    <button (click)="saveToPng()" class="btn btn-primary">
+                        <i class="fa-picture-o"></i> {{"SaveToPng" | localize}}
+                    </button>
+                    <button (click)="createHuman()" *ngIf="isGranted('Human.Create')" class="btn btn-primary">
+                        <i class="fa fa-plus"></i> {{"CreateHuman" | localize}}
+                    </button>
+                    <button type="text" class="btn btn-default" (click)="display = true"><i
+                            class="fa"></i>{{"Setting" | localize}}</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="m-content">
+            <div class="m-portlet m-portlet--mobile" style="margin-bottom: 0;">
+                <div class="m-portlet__body" style="padding: 2.2rem 2.2rem 0 2.2rem">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-10">
+                            <div class="col-xl-6">
+                                <div class="form-group">
+                                    <label class="control-label">关键字搜索</label>
+                                    <div class="input-group">
+                                        <input [(ngModel)]="searchKey" id="SearchKey" name="searchKey" autoFocus class="form-control m-input" [placeholder]="l('SearchWithThreeDot')" type="text" (ngModelChange)="searchHuman($event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row align-items-center">
+                        <div class="m-portlet__body" style="width:100%;height:600px;resize:vertical;overflow:auto;" #maindiv>
+                            <figure id="bar"></figure>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <app-bind-humanrelation-modal #bindHumanrelationModalComponent (modalSave)="appendLink($event)">
+    </app-bind-humanrelation-modal>
+    <app-create-human-modal #createHumanModalComponent (modalSave)="appendNode($event)"></app-create-human-modal>
+    <app-edit-human-modal #editHumanModalComponent (modalSave)="show()"></app-edit-human-modal>
+    <app-edit-human-project-map-modal #editHumanProjectMapModalComponent (modalSave)="show()"></app-edit-human-project-map-modal>
+    <app-edit-human-headpic-modal #editHumanHeadpicModalComponent (modalSave)="show()"></app-edit-human-headpic-modal>
+    <p-contextMenu #contextMenuModule [model]="items" (modalSave)="ItemAction($event)"></p-contextMenu>
+
+    <p-sidebar [(visible)]="display" position="right">
+        <br>
+        <br>
+        <br>
+        <br>
+        <button (click)="changeSize('100%','700px')" class="btn btn-primary">
+            <i class="fa-arrows-h"></i> {{"横向" | localize}}
+        </button>
+        <button (click)="changeSize('100%','2100px')" class="btn btn-primary">
+            <i class="fa-arrows-v"></i> {{"纵向" | localize}}
+        </button>
+        <div>
+            <h3 class="first">大小: {{circleRadius}}</h3>
+            <p-slider [(ngModel)]="circleRadius" (ngModelChange)="UpdateNodes()"></p-slider>
+        </div>
+        <br>
+        <br>
+        <div>
+            <h3 class="first">Height: {{Height}}</h3>
+            <p-slider [(ngModel)]="Height" (ngModelChange)="changeSize(Width+'%',Height+'px')" max="3500" orientation="vertical"></p-slider>
+        </div>
+        <div>
+            <p-slider [(ngModel)]="Width" max="250" (ngModelChange)="changeSize(Width+'%',Height+'px')"></p-slider>
+            <h3 class="first">Width: {{Width}}</h3>
+        </div>
+        <br>
+        <br>
+        <div>
+            <h3 class="first">距离: {{circleDistinct}}</h3>
+            <p-slider [(ngModel)]="circleDistinct" max="250" (ngModelChange)="UpdateLink()"></p-slider>
+        </div>
+    </p-sidebar>

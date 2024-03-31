@@ -1,0 +1,24 @@
+.context-menu-item {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #337ab7;
+}
+
+.context-menu-item td {
+    padding: 3px 5px;
+    color: #666;
+    vertical-align: middle;
+}
+
+.context-menu-item tr:nth-of-type(odd) {
+    background: #f9f9f9;
+}
+
+.context-menu-item td.td-label {
+    color: #333;
+    width: 42px;
+}
+
+.context-menu-item td a {
+    color: #666
+}

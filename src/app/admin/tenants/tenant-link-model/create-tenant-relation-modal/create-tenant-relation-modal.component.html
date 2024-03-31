@@ -1,0 +1,31 @@
+<div bsModal #editModal="bs-modal" (onShow)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form *ngIf="active" #editForm="ngForm" novalidate (ngSubmit)="save()">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        <span>{{"CreateHuman" | localize}}</span>
+                    </h4>
+                    <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group form-md-line-input form-md-floating-label no-hint">
+                        <label>目标租户</label>
+                        <select *ngIf="tenants" name="selectToTenantId" class="form-control" [(ngModel)]="tenantCreateDto.destTenantId" required>
+                            <option *ngFor="let item of this.tenants" [value]="item.id">
+                                {{item.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button [disabled]="saving" type="button" class="btn btn-default" (click)="close()">{{l("cancel")}}</button>
+                    <button class="btn btn-primary" [disabled]="!editForm.form.valid" [buttonBusy]="saving" [busyText]="l('savingwiththreedot')"><i class="fa fa-save"></i>
+                        <span>{{l("save")}}</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+svg {
+    border: 1px solid #ccc;
+}
+
+line {
+    stroke: #999;
+    stroke-opacity: 0.6;
+}
+
+line:hover {
+    stroke: #F00;
+    stroke-opacity: 3;
+    cursor: crosshair;
+}
+
+.nodes circle {
+    stroke: #FFF;
+    stroke-width: 1.5px;
+}
+
+.nodetext {
+    color: #FFF;
+}
+
+circle .node {
+    cursor: pointer;
+    opacity: 0.5
+}
+
+.node.fixed {
+    fill: #f00;
+}
+
+text {
+    -moz-user-select: none;
+    /*火狐*/
+    -webkit-user-select: none;
+    /*webkit浏览器*/
+    -ms-user-select: none;
+    /*IE10*/
+    -khtml-user-select: none;
+    /*早期浏览器*/
+    -o-user-select: none;
+    /* Opera*/
+    user-select: none;
+}
+
+.content {
+    padding: 15px 15px 0 15px;
+}

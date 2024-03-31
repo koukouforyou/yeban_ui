@@ -1,0 +1,99 @@
+<div bsModal #editModal="bs-modal" (onShow)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog modal-lg">
+        <form #editForm="ngForm" novalidate (ngSubmit)="save()">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        <span>{{"CreateHumanRelation" | localize}}</span>
+                    </h4>
+                    <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row align-items-center m--margin-bottom-10">
+                        <div class="col-xl-12" style="text-align: center;">
+                            <img *ngIf="base64" src="{{base64}}" style="height: 400px;width: 400px;">
+                        </div>
+                    </div>
+                    <div class="row align-items-center m--margin-bottom-10">
+                        <div class="col-xl-12">
+                            <div class="form-group">
+                                <label class="control-label">Url地址</label>
+                                <div class="input-group">
+                                    <input [(ngModel)]="picUrl" name="searchKey" autoFocus class="form-control m-input" [placeholder]="l('SearchWithThreeDot')" type="text">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row align-items-center m--margin-bottom-10">
+                        <div class="col-xl-12">
+                            <div class="form-group">
+                                <label class="control-label">Base64</label>
+                                <div class="input-group">
+                                    <input [(ngModel)]="base64" name="searchKey" autoFocus class="form-control m-input" [placeholder]="l('SearchWithThreeDot')" type="text">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i><span>{{l("Save")}}</span>
+                    </button>
+                    <button type="button" (click)="handlePaste($event)" class="btn btn-primary"><i
+                            class="fa fa-save"></i><span>{{l("从粘贴板获得")}}</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- <script>
+    document.addEventListener('paste', function(event) {
+        var items = (event.clipboardData || window.clipboardData).items;
+        var file = null;
+        if (items && items.length) {
+            // 搜索剪切板items
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    file = items[i].getAsFile();
+                    break;
+                }
+            }
+        } else {
+            log.innerHTML = '<span style="color:red;">当前浏览器不支持</span>';
+            return;
+        }
+        if (!file) {
+            log.innerHTML = '<span style="color:red;">粘贴内容非图片</span>';
+            return;
+        }
+        // 此时file就是我们的剪切板中的图片对象
+        // 如果需要预览，可以执行下面代码
+        var reader = new FileReader()
+        reader.onload = function(event) {
+            preview.innerHTML = '<img src="' + event.target.result + '" class="upload-image">';
+        }
+        reader.readAsDataURL(file);
+        // 如果不需要预览，上面这段可以忽略
+
+        // 这里是上传
+        var xhr = new XMLHttpRequest();
+        // 上传进度
+        if (xhr.upload) {
+            xhr.upload.addEventListener('progress', function(event) {
+                log.innerHTML = '正在上传，进度：' + Math.round(100 * event.loaded / event.total) / 100 + '%';
+            }, false);
+        }
+        // 上传结束
+        xhr.onload = function() {
+            var responseText = xhr.responseText;
+            log.innerHTML = '上传成功，地址是：' + responseText;
+        };
+        xhr.onerror = function() {
+            log.innerHTML = '<span style="color:red;">网络异常，上传失败</span>';
+        };
+        xhr.open('POST', './upload.php', true);
+        xhr.setRequestHeader('FILENAME', encodeURIComponent(file.name));
+        xhr.send(file);
+    });
+</script> -->

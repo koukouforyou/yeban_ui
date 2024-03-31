@@ -1,0 +1,22 @@
+<div class="m-portlet m-portlet--mobile">
+    <div class="m-portlet__head">
+        <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+                <h3 class="m-portlet__head-text">
+                    {{"HumanGroupTree" | localize}}
+                </h3>
+            </div>
+        </div>
+        <div class="m-portlet__head-tools">
+            <button *ngIf="isGranted('Human.Group.Create')" (click)="addGroup(null)" class="btn btn-primary">
+                <i class="fa fa-plus"></i> {{"AddRootGroup" | localize}}
+            </button>
+        </div>
+    </div>
+    <div class="m-portlet__body" style="overflow-y: scroll;height:650px">
+        <p-tree [value]="treeData" selectionMode="single" [(selection)]="selectedOu" (onNodeSelect)="nodeSelect($event)" (onNodeDrop)="nodeDrop($event)" [contextMenu]="ouContextMenu" [draggableNodes]="canManageOrganizationUnits" [droppableNodes]="canManageOrganizationUnits"></p-tree>
+        <p-contextMenu #ouContextMenu [model]="ouContextMenuItems" appendTo="body" baseZIndex="99999"></p-contextMenu>
+    </div>
+</div>
+<app-create-humangroup-modal #createHumanGroupModal (unitCreated)="unitCreated($event)"></app-create-humangroup-modal>
+<app-edit-humangroup-modal #editHumanGroupModal (unitUpdated)="unitUpdated($event)"></app-edit-humangroup-modal>
