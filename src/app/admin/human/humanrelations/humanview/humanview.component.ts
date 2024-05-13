@@ -66,12 +66,9 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
     @ViewChild('editHumanHeadpicModalComponent', { read: EditHumanHeadpicModalComponent, static: false }) editHumanHeadpicModalComponent: EditHumanHeadpicModalComponent;
     @ViewChild('bindHumanrelationModalComponent', { read: BindHumanrelationModalComponent, static: false }) bindHumanrelationModalComponent: BindHumanrelationModalComponent;
     @ViewChild('createHumanModalComponent', { read: CreateHumanModalComponent, static: false }) createHumanModalComponent: CreateHumanModalComponent;
-
     @ViewChild('editHumanProjectMapModalComponent',{read:EditHumanProjectMapModalComponent,static:false}) editHumanProjectMapModalComponent:EditHumanProjectMapModalComponent
-
     @ViewChild('editHumanModalComponent', { read: EditHumanModalComponent, static: false }) editHumanModalComponent: EditHumanModalComponent;
     @ViewChild('maindiv', { static: true }) element: ElementRef;
-
     @ViewChild('humanViewSettingModal', { static: false }) humanViewSettingModal;
     constructor(injector: Injector, private _humanServiceProxy: HumanServiceProxy, private _humanRelationServiceProxy: HumanRelationServiceProxy, private renderer: Renderer2) {
         super(injector);
@@ -157,6 +154,30 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
         }
     }
 
+    drag = simulation => {
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+
+        return d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+    }
+
     private drawBars(): void {
         this.initData();
         this.simulation = d3.forceSimulation(this.nodesData);
@@ -195,37 +216,59 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
         //this.CreateNodeTitle();
     }
 
+    //初始化数据
     private initData(): void {
         this.linksData = this.humanlinks.map(d => Object.create(d));
         this.nodesData = this.humannodes.map(d => Object.create(d));
     }
 
-
-
-    drag = simulation => {
-        function dragstarted(event) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
+    //初始化节点
+    private initNodes(nodesData) {
+        if (this.gNodes == undefined) {
+            this.gNodes = this.g.append("g");
         }
-
-        function dragged(event) {
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-        }
-
-        function dragended(event) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-        }
-
-        return d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
+        this.nodes = this.gNodes
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5)
+            .selectAll("circle")
+            .data(nodesData)
+            .join("circle")
+            .attr("r", this.circleRadius)
+            .attr("class", "node")
+            .style('opacity', (d, i) => d.headPic != "" ? 1 : 0.5)
+            .style('cursor', 'pointer')
+            .attr("fill", (d, i) => d.headPic != "" ? "url(#catpattern" + i + ")" : d.id == this.interNodeId ? "yellow" : "gray")
+            .on("click", (event, d) => {
+                if (this.sourceHumannode == undefined) {
+                    this.sourceHumannode = this.humannodes[d.index];
+                    this.gNodes.selectAll("circle").attr("stroke",(e)=>(e.index==d.index?"#f0f":(e.name.indexOf(this.searchKey)!=-1&&this.searchKey!="")?"#f00":"#fff"));
+                    this.notify.info("源：{" + this.sourceHumannode.name + "}");
+                }
+                else {
+                    if (this.sourceHumannode == this.humannodes[d.index]) {
+                        this.sourceHumannode = this.humannodes[d.index];
+                        this.notify.info("源：{" + this.sourceHumannode.name + "}");
+                    }
+                    else {
+                        this.destHumannode = this.humannodes[d.index];
+                        this.bindHumanrelationModalComponent.show(this.sourceHumannode.id, this.destHumannode.id, this.sourceHumannode.name, this.destHumannode.name);
+                        this.sourceHumannode = undefined;
+                        this.destHumannode = undefined;
+                        this.gNodes.selectAll("circle").attr("stroke","#fff");
+                        this.searchHuman();
+                    }
+                }
+            })
+            .on("contextmenu",(event,d)=>{
+                this.contextmenuitem = d.id;
+                this.contextMenuModule.show(event);
+            })
+            .call(this.drag(this.simulation));
+        this.nodes.selectAll("title").remove();
+        this.nodes.append("title").text((d, i) => d.name);
     }
 
+    //初始化节点信息
     private initNodeText(nodesData) {
         if (this.gNodes_text == undefined) {
             this.gNodes_text = this.g.append("g");
@@ -245,7 +288,30 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
             .text(d => d.headPic == "" || d.headPic == undefined ? d.name : d.name);
     }
 
-    //添加链接
+    //初始化节点图片
+    private initNodesImg(nodesData) {
+        if (this.gNodes_img == undefined) {
+            this.gNodes_img = this.g.append("g");
+        }
+        this.gNodes_img.selectAll("defs").remove();
+        this.nodes_img = this.gNodes_img
+            .selectAll("defs")
+            .data(nodesData).enter()
+            .append("defs")
+            .attr("id", "imgdefs")
+            .append("pattern")
+            .attr("id", (d, i) => "catpattern" + i)
+            .attr("height", 1)
+            .attr("width", 1)
+            .append("image")
+            .attr("x", 5)
+            .attr("y", 5)
+            .attr("width", this.circleRadius * 2 - 10)
+            .attr("height", this.circleRadius * 2 - 10)
+            .attr("xlink:href", (d, i) => d.headPic)
+    }
+
+    //初始化链接
     private initLinks(linksData) {
         if (this.gLinks == undefined) {
             this.gLinks = this.g.append("g");
@@ -281,7 +347,22 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
             });
     }
 
-    //创建连接
+    //初始化链接文字
+    private initLinksText(linksData) {
+        if (this.gLinks_text == undefined) {
+            this.gLinks_text = this.g.append("g");
+        }
+        this.gLinks_text
+            .selectAll("text").remove();
+        this.links_text = this.gLinks_text
+            .selectAll("text")
+            .data(linksData).enter()
+            .append("text")
+            .attr("font-size", "8px")
+            .text(d => d.description)
+    }
+
+    //初始化箭头
     private initMarkers() {
         if (this.gMarker == undefined) {
             this.gMarker = this.g.append("g");
@@ -323,96 +404,13 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
                 .attr('fill', '#000000'); //箭头颜色
     }
 
-    //创建文字
-    private initLinksText(linksData) {
-        if (this.gLinks_text == undefined) {
-            this.gLinks_text = this.g.append("g");
-        }
-        this.gLinks_text
-            .selectAll("text").remove();
-        this.links_text = this.gLinks_text
-            .selectAll("text")
-            .data(linksData).enter()
-            .append("text")
-            .attr("font-size", "8px")
-            .text(d => d.description)
-    }
-
-    //创建图片
-    private initNodesImg(nodesData) {
-        if (this.gNodes_img == undefined) {
-            this.gNodes_img = this.g.append("g");
-        }
-        this.gNodes_img.selectAll("defs").remove();
-        this.nodes_img = this.gNodes_img
-            .selectAll("defs")
-            .data(nodesData).enter()
-            .append("defs")
-            .attr("id", "imgdefs")
-            .append("pattern")
-            .attr("id", (d, i) => "catpattern" + i)
-            .attr("height", 1)
-            .attr("width", 1)
-            .append("image")
-            .attr("x", 5)
-            .attr("y", 5)
-            .attr("width", this.circleRadius * 2 - 10)
-            .attr("height", this.circleRadius * 2 - 10)
-            .attr("xlink:href", (d, i) => d.headPic)
-    }
-
-
-
-
-    private initNodes(nodesData) {
-        if (this.gNodes == undefined) {
-            this.gNodes = this.g.append("g");
-        }
-        this.nodes = this.gNodes
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5)
-            .selectAll("circle")
-            .data(nodesData)
-            .join("circle")
-            .attr("r", this.circleRadius)
-            .attr("class", "node")
-            .style('opacity', (d, i) => d.headPic != "" ? 1 : 0.5)
-            .style('cursor', 'pointer')
-            .attr("fill", (d, i) => d.headPic != "" ? "url(#catpattern" + i + ")" : d.id == this.interNodeId ? "red" : "gray")
-            .on("click", (event, d) => {
-                if (this.sourceHumannode == undefined) {
-                    this.sourceHumannode = this.humannodes[d.index];
-                    this.gNodes.selectAll("circle").attr("stroke",(e)=>(e.index==d.index?"#f0f": "#fff"))
-                    this.notify.info("源：{" + this.sourceHumannode.name + "}");
-                }
-                else {
-                    if (this.sourceHumannode == this.humannodes[d.index]) {
-                        this.sourceHumannode = this.humannodes[d.index];
-                        this.notify.info("源：{" + this.sourceHumannode.name + "}");
-                    }
-                    else {
-                        this.destHumannode = this.humannodes[d.index];
-                        this.bindHumanrelationModalComponent.show(this.sourceHumannode.id, this.destHumannode.id, this.sourceHumannode.name, this.destHumannode.name);
-                        this.sourceHumannode = undefined;
-                        this.destHumannode = undefined;
-                        this.gNodes.selectAll("circle").attr("stroke","#fff")
-                    }
-                }
-            })
-            .on("contextmenu",(event,d)=>{
-                this.contextmenuitem = d.id;
-                this.contextMenuModule.show(event);
-            })
-            .call(this.drag(this.simulation));
-        this.nodes.selectAll("title").remove();
-        this.nodes.append("title").text((d, i) => d.name);
-    }
-
+    //查询
     searchHuman(event?: LazyLoadEvent) {
         this.gNodes.selectAll("circle").attr("stroke", (d) => (d.name.indexOf(this.searchKey) != -1 && this.searchKey != "" ? "#f00" : "#fff")||(d.nickName.indexOf(this.searchKey) != -1 && this.searchKey != "" ? "#f00" : "#fff"));
         this.gNodes.selectAll("circle").attr("stroke-width", (d) => (d.name.indexOf(this.searchKey) != -1 && this.searchKey != "" ? 10 : 1.5)||(d.nickName.indexOf(this.searchKey) != -1 && this.searchKey != "" ? 10 : 1.5));
     }
 
+    //添加链接
     appendLink(info: HumanRelationDto): void {
         var humaninfo = new HumanRelationLinkDto();
         humaninfo.source = info.sourceHumanId;
@@ -426,6 +424,7 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
         this.Update();
     }
 
+    //添加节点
     appendNode(info: HumanDto): void {
         var humannode = new HumanRelationNodeDto();
         humannode.id = info.id,
@@ -437,12 +436,15 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
         this.Update();
     }
 
+    //更新方法
     private Update() {
         this.initData();
         this.links = this.gLinks.data(this.linksData);
         this.drawBars();
         this.simulation.alpha(0.3).restart();
+        this.searchHuman();
     }
+
 
     createHuman() {
         this.createHumanModalComponent.show();
@@ -450,7 +452,6 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
 
 
     //#region 更新图形形状
-
     public UpdateNodes() {
         this.gNodes.selectAll("circle").attr("r", this.circleRadius);
         this.gNodes_img.selectAll("image")
@@ -469,7 +470,6 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
 
     public getMenu():any[]{
         let menu = [
-
             {
                 title: 'Toggle dark theme',
                 action: function (data, event) {
@@ -527,7 +527,8 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
                         });
                 }
             }
-        )
+        );
+        this.Update();
     }
 
     projectMap(){
@@ -542,3 +543,5 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
     }
     //#endregion
 }
+
+

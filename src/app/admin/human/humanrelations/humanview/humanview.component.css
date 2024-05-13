@@ -24,7 +24,7 @@ line:hover {
 
 circle .node {
     cursor: pointer;
-    opacity: 0.5
+    opacity: 0.5;
 }
 
 .node.fixed {
@@ -47,4 +47,17 @@ text {
 
 .content {
     padding: 15px 15px 0 15px;
+}
+
+.node.searched{
+    stroke: #F00;
+    stroke-width: 10;
+}
+
+.node .normal{
+    stroke: #FFF;
+}
+
+.node .selected{
+    stroke: #F0F;
 }
