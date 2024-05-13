@@ -213,6 +213,7 @@ export class HumanviewComponent extends AppComponentBase implements OnInit {
         this.initLinksText(this.linksData);
         this.initNodesImg(this.nodesData);
         this.initNodes(this.nodesData);
+        this.searchHuman();
         //this.CreateNodeTitle();
     }
 
